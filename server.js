@@ -1,6 +1,5 @@
 const express = require('express');
 const connectDB = require('./db');
-const Form = require('./models/Form');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -12,35 +11,15 @@ connectDB();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get('/api/v1/forms', async (req, res) => {
-    try {
-      const forms = await Form.find();
-      res.json(forms);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
-    }
-});
+app.get('/', (req, res) => res.send('API Running'));
 
-app.post('/api/v1/submit', async (req, res) => {
-  const { username, preferredLanguage, stdin, sourceCode } = req.body;
+// Import routes
+const formsRoutes = require('./api/forms');
+const submitRoutes = require('./api/submit');
 
-  try {
-    let form = new Form({
-      username,
-      preferredLanguage,
-      stdin,
-      sourceCode,
-    });
-
-    await form.save();
-
-    res.send('Form data saved');
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+// Use routes
+app.use('/api/v1/forms', formsRoutes);
+app.use('/api/v1/submit', submitRoutes);
 
 const PORT = process.env.PORT || 5000;
 
